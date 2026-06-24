@@ -370,7 +370,7 @@
 <div class="wrap">
   <div class="head">
     <h2>K.C. HEART Core Value Evaluation</h2>
-    <div>ผู้ประเมิน: สุชานรี กองพลพรหม</div>
+    <div id="evaluatorHeader">ผู้ประเมิน: -</div>
   </div>
 
   <div id="app"></div>
@@ -378,7 +378,12 @@
 
 <script>
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby-T2AJE7CFzCAuZgGqo_cIHdkmoW7HGocKNyH6xvyTUKg4fZ5ulNhBTX-br4WMWOc4uQ/exec';
-const EVALUATOR_NAME = 'สุชานรี กองพลพรหม';
+const params = new URLSearchParams(window.location.search);
+const EVALUATOR_NAME =
+  params.get('evaluator') || 'สุชานรี กองพลพรหม';
+  document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('evaluatorHeader').innerText = 'ผู้ประเมิน: ' + EVALUATOR_NAME;
+});
 
 let employees = [];
 let selectedEmployee = null;
