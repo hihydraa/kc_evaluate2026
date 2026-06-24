@@ -121,21 +121,50 @@
     }
 
     .score-visual {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 10px;
-    }
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  overflow: visible;
+}
 
-    .score-guide {
-      border-radius: 16px;
-      padding: 14px;
-      color: white;
-      min-height: 124px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-shadow: 0 8px 16px rgba(15,23,42,.10);
-    }
+.score-guide {
+  border-radius: 16px;
+  padding: 14px;
+  color: #111827;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  box-shadow: 0 8px 16px rgba(15,23,42,.10);
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.score-guide .num {
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.score-guide .name {
+  font-weight: 900;
+  margin: 0 0 8px;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.score-guide .desc {
+  font-size: 12px;
+  line-height: 1.45;
+  opacity: 1;
+}
+
+.s5 { background: #dcfce7; border: 2px solid var(--s5); }
+.s4 { background: #ecfccb; border: 2px solid var(--s4); }
+.s3 { background: #fef3c7; border: 2px solid var(--s3); }
+.s2 { background: #ffedd5; border: 2px solid var(--s2); }
+.s1 { background: #fee2e2; border: 2px solid var(--s1); }
 
     .score-guide .num {
       font-size: 30px;
@@ -153,12 +182,6 @@
       line-height: 1.45;
       opacity: .96;
     }
-
-    .s5 { background: var(--s5); }
-    .s4 { background: var(--s4); }
-    .s3 { background: var(--s3); }
-    .s2 { background: var(--s2); }
-    .s1 { background: var(--s1); }
 
     .heart-grid {
       display: grid;
@@ -660,7 +683,7 @@ function renderForm() {
         </div>
 
         <div class="score">
-          ${[5,4,3,2,1].map(s => `
+          ${[1,2,3,4,5].map(s => `
             <label class="score-option">
               <input type="radio" name="score_${i}" value="${s}">
               <span class="score-pill">${s}</span>
