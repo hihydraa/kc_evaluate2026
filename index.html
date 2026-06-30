@@ -125,6 +125,8 @@
     .score-circle .lbl { font-size: 11px; opacity: .85; margin-top: 3px; }
 
     .cv-block { border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+    .cv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .cv-grid .cv-block { margin-bottom: 0; }
     .cv-block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .cv-name { font-size: 15px; font-weight: 800; color: var(--blue); }
     .cv-avg-badge { padding: 5px 14px; border-radius: 999px; color: white; font-weight: 800; font-size: 14px; }
@@ -151,6 +153,7 @@
       .heart-grid { grid-template-columns: 1fr; }
       .score-row { grid-template-columns: repeat(3,1fr); }
       .info-grid { grid-template-columns: 1fr; }
+      .cv-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -683,7 +686,7 @@ function showDetail(emp){
   </div>`;
 
   // Per-CV question breakdown
-  h += `<div class="card"><h3 class="section-title">รายละเอียดตาม Core Value</h3>`;
+  h += `<div class="card"><h3 class="section-title">รายละเอียดตาม Core Value</h3><div class="cv-grid">`;
   cvKeys.forEach((cv, ci) => {
     const avg = cvAvgs[ci];
     h += `<div class="cv-block">
@@ -702,7 +705,7 @@ function showDetail(emp){
     });
     h += `</div>`;
   });
-  h += `</div></div>`; // close card + pdf-root
+  h += `</div></div></div>`; // close cv-grid + card + pdf-root
 
   h += `<div class="action-row">
     <button class="gray" onclick="renderDash(dashData)">← กลับภาพรวม</button>
@@ -788,6 +791,8 @@ function doPDF(){
     .bc-label{font-size:6.8pt;color:#6b7280;margin-top:1px}
     .bc-vs{font-size:11pt;color:#9ca3af;font-weight:700}
     .cv-block{border:1px solid #e5e7eb;border-radius:7px;padding:6px 8px;margin-bottom:4px; page-break-inside:avoid}
+    .cv-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .cv-grid .cv-block{margin-bottom:0}
     .cv-block-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
     .cv-name{font-size:8.6pt;font-weight:800;color:#173b6c}
     .cv-avg-badge{padding:2px 9px;border-radius:999px;color:white;font-weight:800;font-size:8pt}
