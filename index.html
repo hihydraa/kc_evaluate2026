@@ -175,7 +175,7 @@
 
 <script>
 /* ─── CONFIG ─── */
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzYGoBWkSD421GJJ-K9tbJLia_pR0ErEfEGR2IvkmlLhLR9wp0mT7I_jxzmLq2l7woRJA/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyDqDeVGDfbMl78HneqqviRmDLhWUyJoJtAL357SPwyuGuG_PRrG1_z9FbKNdRANxL2YA/exec';
 
 /* ─── EVALUATOR FROM URL ───
    Each evaluator gets their own link: yoursite.html?evaluator=ชื่อผู้ประเมิน
@@ -744,7 +744,7 @@ function showDetail(emp){
 }
 
 /* ─── PDF EXPORT (fit to 1 page A4) ─── */
-function doPDF(){
+function doPDF(emp){
   const root = el('pdf-root');
   if(!root){ alert('ไม่พบข้อมูลสำหรับ PDF'); return; }
 
@@ -764,6 +764,10 @@ function doPDF(){
     img.style.cssText = 'width:100%;max-height:170px;object-fit:contain;display:block;margin:auto';
     c.replaceWith(img);
   });
+
+  // ─── ชื่อผู้ถูกประเมิน / ผู้ประเมิน สำหรับช่องลงชื่อ ───
+  const currentEmployeeName = (selectedEmp && selectedEmp.employee)
+    || (root.querySelector('.detail-hero h3') ? root.querySelector('.detail-hero h3').textContent : '');
 
   const win = window.open('','_blank');
   win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
@@ -802,11 +806,42 @@ function doPDF(){
     .q-note{font-size:7pt;color:#6b7280}
     .s5{background:#16a34a}.s4{background:#65a30d}.s3{background:#d97706}.s2{background:#ea580c}.s1{background:#dc2626}
     img{max-width:100%;display:block}
+
+    /* ─── NEW: ช่องลงชื่อ (มุมขวาล่าง) ─── */
+    .signature-section{ margin-top:10px; display:flex; justify-content:flex-end; page-break-inside:avoid; }
+    .signature-row{ display:flex; gap:22px; }
+    .sig-box{ width:150px; text-align:center; }
+    .sig-line{ border-bottom:1px solid #4b5563; height:26px; margin-bottom:5px; }
+    .sig-caption{ font-size:7pt; color:#6b7280; margin-bottom:2px; }
+    .sig-name{ font-size:8.2pt; font-weight:800; color:#173b6c; }
+    .sig-role{ font-size:7pt; color:#6b7280; margin-top:1px; }
+    .sig-date{ font-size:6.6pt; color:#9ca3af; margin-top:4px; }
+
     .footer{margin-top:6px;border-top:1px solid #e5e7eb;padding-top:4px;text-align:center;color:#9ca3af;font-size:6.5pt}
   </style>
   </head><body>
   <div id="scale-wrap">
   ${cloned.innerHTML}
+
+  <div class="signature-section">
+    <div class="signature-row">
+      <div class="sig-box">
+        <div class="sig-caption">ลงชื่อ</div>
+        <div class="sig-line"></div>
+        <div class="sig-name">${currentEmployeeName}</div>
+        <div class="sig-role">ผู้ถูกประเมิน</div>
+        <div class="sig-date">วันที่ ..................................</div>
+      </div>
+      <div class="sig-box">
+        <div class="sig-caption">ลงชื่อ</div>
+        <div class="sig-line"></div>
+        <div class="sig-name">${EVALUATOR_NAME}</div>
+        <div class="sig-role">ผู้ประเมิน</div>
+        <div class="sig-date">วันที่ ..................................</div>
+      </div>
+    </div>
+  </div>
+
   <div class="footer">K.C. HEART Core Value Evaluation &nbsp;|&nbsp; ผู้ประเมิน: ${EVALUATOR_NAME} &nbsp;|&nbsp; ${new Date().toLocaleString('th-TH')}</div>
   </div>
   <script>
