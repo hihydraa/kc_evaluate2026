@@ -464,18 +464,27 @@ function renderDash(d){
     return;
   }
 
+  // Helper to safely convert to number
+  const toNum = (v) => {
+    if(v === null || v === undefined || v === 'NaN') return 0;
+    const n = Number(v);
+    return isNaN(n) ? 0 : n;
+  };
+
   const ind = d.individual;
   const dist = d.scoreDistribution || [0,0,0,0,0];
   const cvOverview = d.coreValueOverview || [];
-  const best = ind.reduce((a,b)=>a.avgScore>b.avgScore?a:b);
-  const worst = ind.reduce((a,b)=>a.avgScore<b.avgScore?a:b);
+  const totalEmp = toNum(d.totalEmployees) || ind.length;
+  const avgScore = toNum(d.avgScore);
+  const best = ind.reduce((a,b)=>toNum(a.avgScore)>toNum(b.avgScore)?a:b);
+  const worst = ind.reduce((a,b)=>toNum(a.avgScore)<toNum(b.avgScore)?a:b);
 
   let h = `
     <div class="stat-grid">
-      <div class="stat-box"><div class="stat-val">${d.totalEmployees}</div><div class="stat-label">พนักงานที่ประเมินแล้ว</div></div>
-      <div class="stat-box"><div class="stat-val" style="color:${scoreColor(d.avgScore)}">${Number(d.avgScore).toFixed(2)}</div><div class="stat-label">คะแนนเฉลี่ยรวม</div></div>
-      <div class="stat-box"><div class="stat-val" style="color:var(--s5)">${Number(best.avgScore).toFixed(2)}</div><div class="stat-label">สูงสุด: ${best.employee}</div></div>
-      <div class="stat-box"><div class="stat-val" style="color:var(--s1)">${Number(worst.avgScore).toFixed(2)}</div><div class="stat-label">ต่ำสุด: ${worst.employee}</div></div>
+      <div class="stat-box"><div class="stat-val">${totalEmp}</div><div class="stat-label">พนักงานที่ประเมินแล้ว</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:${scoreColor(avgScore)}">${avgScore.toFixed(2)}</div><div class="stat-label">คะแนนเฉลี่ยรวม</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--s5)">${toNum(best.avgScore).toFixed(2)}</div><div class="stat-label">สูงสุด: ${best.employee}</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--s1)">${toNum(worst.avgScore).toFixed(2)}</div><div class="stat-label">ต่ำสุด: ${worst.employee}</div></div>
     </div>
 
     <div class="chart-grid">
@@ -845,18 +854,23 @@ async function loadAdminDashboard(){
           <tbody>
     `;
     
-    Object.values(cvSum).forEach(cv => {
-      const avg = toNum(cv.average);
-      const min = toNum(cv.min);
-      const max = toNum(cv.max);
-      const colorClass = avg >= 4.5 ? 's5' : avg >= 3.5 ? 's4' : avg >= 2.5 ? 's3' : 's2';
-      html += `<tr>
-        <td style="font-weight:700">${cv.coreValue}</td>
-        <td>${cv.count}</td>
-        <td style="font-weight:700">${avg.toFixed(2)}</td>
-        <td><span class="score-badge ${colorClass}">${min.toFixed(1)} - ${max.toFixed(1)}</span></td>
-      </tr>`;
-    });
+    const cvValues = Object.values(cvSum);
+    if(cvValues.length === 0) {
+      html += `<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--muted)">ไม่มีข้อมูล</td></tr>`;
+    } else {
+      cvValues.forEach(cv => {
+        const avg = toNum(cv.average);
+        const min = toNum(cv.min);
+        const max = toNum(cv.max);
+        const colorClass = avg >= 4.5 ? 's5' : avg >= 3.5 ? 's4' : avg >= 2.5 ? 's3' : 's2';
+        html += `<tr>
+          <td style="font-weight:700">${cv.coreValue}</td>
+          <td>${cv.count}</td>
+          <td style="font-weight:700">${avg.toFixed(2)}</td>
+          <td><span class="score-badge ${colorClass}">${min.toFixed(1)} - ${max.toFixed(1)}</span></td>
+        </tr>`;
+      });
+    }
     
     html += `
           </tbody>
@@ -879,9 +893,11 @@ async function loadAdminDashboard(){
           <tbody>
     `;
     
-    empSum.sort((a,b) => toNum(b.average) - toNum(a.average))
-      .slice(0, 10)
-      .forEach((emp, i) => {
+    const empSorted = empSum.sort((a,b) => toNum(b.average) - toNum(a.average)).slice(0, 10);
+    if(empSorted.length === 0) {
+      html += `<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">ไม่มีข้อมูล</td></tr>`;
+    } else {
+      empSorted.forEach((emp, i) => {
         const avg = toNum(emp.average);
         const colorClass = avg >= 4.5 ? 's5' : avg >= 3.5 ? 's4' : avg >= 2.5 ? 's3' : 's2';
         html += `<tr>
@@ -893,6 +909,7 @@ async function loadAdminDashboard(){
           <td>${emp.recordCount}</td>
         </tr>`;
       });
+    }
     
     html += `
           </tbody>
