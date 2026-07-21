@@ -2,626 +2,1008 @@
 <html>
 <head>
   <meta charset="UTF-8">
+  <title>K.C. HEART Evaluation</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>K.C. HEART Core Value Evaluation</title>
-
+  <meta name="color-scheme" content="light">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
-    * {
-      box-sizing: border-box;
+    html { color-scheme: light only; }
+    :root {
+      --blue: #173b6c; --blue2: #244a83; --blue3: #1e4d99;
+      --text: #1f2937; --muted: #6b7280; --card: #fff; --line: #e5e7eb;
+      --s5: #16a34a; --s4: #65a30d; --s3: #d97706; --s2: #ea580c; --s1: #dc2626;
     }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; background: linear-gradient(180deg,#f8fafc,#eef2f7); color: var(--text); padding: 24px; }
+    .wrap { max-width: 1120px; margin: auto; }
 
-    html {
-      color-scheme: light only;
-    }
+    /* HEAD */
+    .head { background: linear-gradient(135deg,var(--blue),var(--blue2)); color: white; padding: 28px; border-radius: 22px; box-shadow: 0 12px 28px rgba(23,59,108,.22); margin-bottom: 18px; }
+    .head h2 { margin: 0 0 8px; font-size: 28px; }
+    .head div { opacity: .95; font-weight: 600; }
 
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(180deg, #f8fafc, #eef2f7);
-      color: #1f2937;
-      padding: 20px;
-      margin: 0;
-    }
+    /* TABS */
+    .tab-nav { display: flex; gap: 10px; margin-bottom: 20px; background: white; padding: 8px; border-radius: 16px; box-shadow: 0 4px 14px rgba(15,23,42,.07); }
+    .tab-btn { flex: 1; background: transparent; color: var(--muted); border: 0; padding: 12px 18px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 15px; transition: .18s; }
+    .tab-btn.active { background: var(--blue); color: white; box-shadow: 0 6px 16px rgba(23,59,108,.25); }
+    .tab-btn:hover:not(.active) { background: #f1f5ff; color: var(--blue); }
 
-    .wrap {
-      max-width: 800px;
-      margin: auto;
-    }
+    /* CARDS */
+    .card { background: var(--card); padding: 20px; border-radius: 18px; margin: 16px 0; box-shadow: 0 8px 22px rgba(15,23,42,.08); border: 1px solid rgba(226,232,240,.9); }
+    .section-title { font-size: 20px; margin: 0 0 14px; color: var(--blue); font-weight: 800; }
 
-    .head {
-      background: linear-gradient(135deg, #173b6c, #244a83);
-      color: white;
-      padding: 28px;
-      border-radius: 22px;
-      box-shadow: 0 12px 28px rgba(23, 59, 108, 0.22);
-      margin-bottom: 18px;
-    }
+    /* INFO GRID */
+    .info-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+    .info-box { background: #f8fafc; border: 1px solid var(--line); border-radius: 14px; padding: 12px; }
+    .info-label { color: var(--muted); font-size: 13px; margin-bottom: 4px; }
+    .info-value { font-weight: 700; }
 
-    .head h2 {
-      margin: 0 0 8px;
-      font-size: 28px;
-    }
+    /* EMPLOYEE LIST */
+    .emp { cursor: pointer; border-left: 7px solid var(--blue); transition: .18s; }
+    .emp:hover { transform: translateY(-2px); background: #f1f7ff; box-shadow: 0 12px 28px rgba(23,59,108,.14); }
+    .employee-name { margin: 0 0 8px; font-size: 21px; color: var(--blue); }
 
-    .head div {
-      opacity: 0.95;
-      font-weight: 600;
-      font-size: 14px;
-    }
+    /* SCORE GUIDE */
+    .score-visual { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; }
+    .score-guide { border-radius: 16px; padding: 14px; color: white; min-height: 124px; display: flex; flex-direction: column; justify-content: space-between; }
+    .score-guide .num { font-size: 30px; font-weight: 800; }
+    .score-guide .name { font-weight: 800; margin: 8px 0 4px; }
+    .score-guide .desc { font-size: 13px; line-height: 1.45; opacity: .96; }
+    .s5{background:var(--s5)} .s4{background:var(--s4)} .s3{background:var(--s3)} .s2{background:var(--s2)} .s1{background:var(--s1)}
 
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 18px;
-      margin-bottom: 16px;
-      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
-      border: 1px solid rgba(226, 232, 240, 0.9);
-    }
+    /* HEART GUIDE */
+    .heart-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
+    .heart-item { border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: #fbfdff; }
+    .heart-name { color: var(--blue); font-weight: 800; margin-bottom: 6px; }
+    .heart-meaning { font-weight: 700; margin-bottom: 6px; }
+    .heart-method { color: var(--muted); font-size: 14px; line-height: 1.45; }
 
-    .section-title {
-      font-size: 20px;
-      margin: 0 0 14px;
-      color: #173b6c;
-      font-weight: 800;
-    }
+    /* FORM QUESTIONS */
+    .q { background: white; padding: 20px; border-radius: 18px; margin: 16px 0; border: 1px solid var(--line); box-shadow: 0 6px 18px rgba(15,23,42,.06); }
+    .q-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+    .core { display: inline-flex; align-items: center; background: #eaf2ff; color: var(--blue); font-weight: 800; padding: 7px 12px; border-radius: 999px; font-size: 13px; }
+    .q-no { color: var(--muted); font-weight: 700; font-size: 13px; }
+    .question-text { font-size: 17px; font-weight: 800; line-height: 1.5; margin-bottom: 12px; }
+    .meta { font-size: 14px; color: #4b5563; margin-top: 10px; line-height: 1.6; background: #f8fafc; padding: 12px; border-radius: 14px; border: 1px dashed #cbd5e1; }
+    .score-row { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; margin-top: 16px; }
+    .score-option { cursor: pointer; }
+    .score-option input { display: none; }
+    .score-pill { display: block; text-align: center; padding: 12px 8px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font-weight: 800; transition: .18s; }
+    .score-option input:checked+.score-pill { color: white; transform: translateY(-2px); box-shadow: 0 8px 18px rgba(15,23,42,.18); }
+    .score-option input[value="5"]:checked+.score-pill{background:var(--s5);border-color:var(--s5)}
+    .score-option input[value="4"]:checked+.score-pill{background:var(--s4);border-color:var(--s4)}
+    .score-option input[value="3"]:checked+.score-pill{background:var(--s3);border-color:var(--s3)}
+    .score-option input[value="2"]:checked+.score-pill{background:var(--s2);border-color:var(--s2)}
+    .score-option input[value="1"]:checked+.score-pill{background:var(--s1);border-color:var(--s1)}
+    textarea { width: 100%; min-height: 70px; margin-top: 14px; border-radius: 14px; border: 1px solid #cbd5e1; padding: 12px; font-family: Arial, sans-serif; resize: vertical; outline: none; }
+    textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(23,59,108,.12); }
 
-    .info-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
+    /* BUTTONS */
+    button { background: var(--blue); color: white; border: 0; padding: 13px 20px; border-radius: 12px; cursor: pointer; font-weight: 800; font-size: 15px; box-shadow: 0 8px 18px rgba(23,59,108,.18); }
+    button.gray { background: #64748b; box-shadow: none; }
+    button.green { background: #16a34a; }
+    button:disabled { background: #aaa; cursor: not-allowed; }
+    .action-row { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
 
-    .info-box {
-      background: #f8fafc;
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-      padding: 12px;
-    }
+    .loading { text-align: center; padding: 48px 20px; color: var(--muted); font-weight: 700; font-size: 16px; }
+    .spinner { width: 40px; height: 40px; border: 4px solid var(--line); border-top-color: var(--blue); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .info-label {
-      color: #6b7280;
-      font-size: 13px;
-      margin-bottom: 4px;
-    }
+    /* EVALUATOR DIRECTORY */
+    .dir-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .dir-link { text-decoration: none; }
+    .dir-link .card.emp { margin: 0; }
 
-    .info-value {
-      font-weight: 700;
-    }
+    /* DASHBOARD STATS */
+    .stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 16px; }
+    .stat-box { background: white; border-radius: 18px; padding: 18px 20px; text-align: center; box-shadow: 0 6px 18px rgba(15,23,42,.08); border: 1px solid var(--line); }
+    .stat-val { font-size: 32px; font-weight: 800; color: var(--blue); line-height: 1; }
+    .stat-label { font-size: 13px; color: var(--muted); margin-top: 6px; font-weight: 600; }
 
-    .employee-card {
-      cursor: pointer;
-      border-left: 7px solid #173b6c;
-      transition: 0.18s;
-    }
+    /* CHARTS */
+    .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .chart-box { background: white; padding: 20px; border-radius: 18px; box-shadow: 0 6px 18px rgba(15,23,42,.08); border: 1px solid var(--line); }
+    .chart-box canvas { max-height: 260px; }
 
-    .employee-card:hover {
-      transform: translateY(-2px);
-      background: #f1f7ff;
-      box-shadow: 0 12px 28px rgba(23, 59, 108, 0.14);
-    }
+    /* EMPLOYEE TABLE */
+    .emp-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .emp-table th { background: #f1f5fb; color: var(--blue); font-weight: 800; padding: 12px 14px; text-align: left; border-bottom: 2px solid var(--line); }
+    .emp-table td { padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+    .emp-table tr:hover td { background: #f8fbff; }
+    .score-badge { display: inline-block; padding: 5px 12px; border-radius: 999px; color: white; font-weight: 800; font-size: 13px; }
+    .detail-btn { background: transparent; color: var(--blue); border: 2px solid var(--blue); padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: none; }
+    .detail-btn:hover { background: var(--blue); color: white; }
+    .progress-bar-wrap { background: #e5e7eb; border-radius: 999px; height: 7px; margin-top: 5px; }
+    .progress-bar { height: 7px; border-radius: 999px; }
 
-    .employee-name {
-      margin: 0 0 8px;
-      font-size: 21px;
-      color: #173b6c;
-    }
+    /* INDIVIDUAL DETAIL */
+    .detail-hero { background: linear-gradient(135deg,var(--blue),var(--blue3)); color: white; padding: 24px 28px; border-radius: 18px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+    .detail-hero h3 { margin: 0 0 6px; font-size: 22px; }
+    .detail-hero .sub { opacity: .85; font-size: 14px; }
+    .score-circle { background: rgba(255,255,255,.18); border-radius: 50%; width: 100px; height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; }
+    .score-circle .val { font-size: 28px; font-weight: 800; line-height: 1; }
+    .score-circle .lbl { font-size: 11px; opacity: .85; margin-top: 3px; }
 
-    .score-visual {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 10px;
-    }
+    .cv-block { border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+    .cv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .cv-grid .cv-block { margin-bottom: 0; }
+    .cv-block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .cv-name { font-size: 15px; font-weight: 800; color: var(--blue); }
+    .cv-avg-badge { padding: 5px 14px; border-radius: 999px; color: white; font-weight: 800; font-size: 14px; }
+    .q-row { background: #f9fafb; border-radius: 10px; padding: 10px 12px; margin-bottom: 7px; display: flex; gap: 10px; align-items: flex-start; border-left: 4px solid var(--line); }
+    .q-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; font-size: 15px; flex-shrink: 0; margin-top: 2px; }
+    .q-text { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+    .q-note { font-size: 12px; color: var(--muted); }
 
-    .score-guide {
-      border-radius: 16px;
-      padding: 14px;
-      color: white;
-      min-height: 124px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
+    .benchmark-compare { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding: 16px 20px; }
+    .bc-item { text-align: center; }
+    .bc-val { font-size: 28px; font-weight: 800; }
+    .bc-label { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .bc-vs { font-size: 20px; color: var(--muted); font-weight: 700; }
 
-    .score-guide .num {
-      font-size: 30px;
-      font-weight: 800;
-    }
+    /* ERROR */
+    .error-box { background: #fef2f2; border: 1px solid #fecaca; border-radius: 14px; padding: 16px; color: #991b1b; }
 
-    .score-guide .name {
-      font-weight: 800;
-      margin: 8px 0 4px;
-    }
-
-    .score-guide .desc {
-      font-size: 13px;
-      line-height: 1.45;
-      opacity: 0.96;
-    }
-
-    .s5 { background: #16a34a; }
-    .s4 { background: #65a30d; }
-    .s3 { background: #d97706; }
-    .s2 { background: #ea580c; }
-    .s1 { background: #dc2626; }
-
-    .question {
-      background: white;
-      padding: 20px;
-      border-radius: 18px;
-      margin: 16px 0;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
-    }
-
-    .question-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: flex-start;
-      margin-bottom: 12px;
-    }
-
-    .core-badge {
-      display: inline-flex;
-      align-items: center;
-      background: #eaf2ff;
-      color: #173b6c;
-      font-weight: 800;
-      padding: 7px 12px;
-      border-radius: 999px;
-      font-size: 13px;
-    }
-
-    .question-no {
-      color: #6b7280;
-      font-weight: 700;
-      font-size: 13px;
-    }
-
-    .question-text {
-      font-size: 17px;
-      font-weight: 800;
-      line-height: 1.5;
-      margin-bottom: 12px;
-    }
-
-    .meta {
-      font-size: 14px;
-      color: #4b5563;
-      margin-top: 10px;
-      line-height: 1.6;
-      background: #f8fafc;
-      padding: 12px;
-      border-radius: 14px;
-      border: 1px dashed #cbd5e1;
-    }
-
-    .score-row {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 10px;
-      margin-top: 16px;
-    }
-
-    .score-option {
-      cursor: pointer;
-    }
-
-    .score-option input {
-      display: none;
-    }
-
-    .score-pill {
-      display: block;
-      text-align: center;
-      padding: 12px 8px;
-      border-radius: 14px;
-      border: 2px solid #e5e7eb;
-      background: #fff;
-      font-weight: 800;
-      transition: 0.18s;
-    }
-
-    .score-option input:checked + .score-pill {
-      color: white;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
-    }
-
-    .score-option input[value="5"]:checked + .score-pill { background: #16a34a; border-color: #16a34a; }
-    .score-option input[value="4"]:checked + .score-pill { background: #65a30d; border-color: #65a30d; }
-    .score-option input[value="3"]:checked + .score-pill { background: #d97706; border-color: #d97706; }
-    .score-option input[value="2"]:checked + .score-pill { background: #ea580c; border-color: #ea580c; }
-    .score-option input[value="1"]:checked + .score-pill { background: #dc2626; border-color: #dc2626; }
-
-    textarea {
-      width: 100%;
-      min-height: 70px;
-      margin-top: 14px;
-      border-radius: 14px;
-      border: 1px solid #cbd5e1;
-      padding: 12px;
-      font-family: Arial, sans-serif;
-      resize: vertical;
-      outline: none;
-    }
-
-    textarea:focus {
-      border-color: #173b6c;
-      box-shadow: 0 0 0 3px rgba(23, 59, 108, 0.12);
-    }
-
-    button {
-      background: #173b6c;
-      color: white;
-      border: 0;
-      padding: 13px 20px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 800;
-      font-size: 15px;
-      box-shadow: 0 8px 18px rgba(23, 59, 108, 0.18);
-      transition: 0.18s;
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 24px rgba(23, 59, 108, 0.25);
-    }
-
-    button.gray {
-      background: #64748b;
-      box-shadow: none;
-    }
-
-    button:disabled {
-      background: #aaa;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .action-row {
-      display: flex;
-      gap: 10px;
-      margin-top: 18px;
-      flex-wrap: wrap;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 48px 20px;
-      color: #6b7280;
-      font-weight: 700;
-      font-size: 16px;
-    }
-
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid #e5e7eb;
-      border-top-color: #173b6c;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 16px;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .error-box {
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      border-radius: 14px;
-      padding: 16px;
-      color: #991b1b;
-    }
-
-    @media (max-width: 800px) {
-      body {
-        padding: 12px;
-      }
-
-      .head {
-        padding: 20px;
-      }
-
-      .head h2 {
-        font-size: 20px;
-      }
-
-      .score-visual, .info-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .score-row {
-        grid-template-columns: repeat(3, 1fr);
-      }
+    @media (max-width:800px) {
+      body { padding: 12px; }
+      .head { padding: 20px; }
+      .head h2 { font-size: 20px; }
+      .score-visual, .stat-grid { grid-template-columns: repeat(2,1fr); }
+      .chart-grid { grid-template-columns: 1fr; }
+      .heart-grid { grid-template-columns: 1fr; }
+      .score-row { grid-template-columns: repeat(3,1fr); }
+      .info-grid { grid-template-columns: 1fr; }
+      .cv-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
-
 <body>
-  <div class="wrap">
-    <div class="head">
-      <h2>K.C. HEART Core Value Evaluation</h2>
-      <div>GitHub Version - K.C. Heart Evaluation Form</div>
-      <div id="head-evaluator">ผู้ประเมิน: -</div>
-    </div>
-
-    <div id="app-content"></div>
+<div class="wrap">
+  <div class="head">
+    <h2>K.C. HEART Core Value Evaluation</h2>
+    <div id="head-evaluator">ผู้ประเมิน: -</div>
   </div>
 
-  <script>
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // ⚠️  แก้ไข URL นี้ให้เป็น URL ของ Google Apps Script ของคุณ
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxhvD3MMMzzryiEH_PJvwX4whqn3d3v_UVtICzCId-Hthby0aWPvoCOIN3GbDaqIs6U_g/exec';
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  <div class="tab-nav" id="tab-nav" style="display:none">
+    <button class="tab-btn active" id="tab-eval" onclick="switchTab('eval')">📋 ประเมิน</button>
+    <button class="tab-btn" id="tab-dash" onclick="switchTab('dash')">📊 ผลคะแนน</button>
+    <button class="tab-btn" id="tab-admin" onclick="switchTab('admin')">📈 Dashboard รวม</button>
+  </div>
 
-    // STATE
-    const urlParams = new URLSearchParams(window.location.search);
-    let EVALUATOR_NAME = (urlParams.get('evaluator') || '').trim();
+  <div id="pane-eval"></div>
+  <div id="pane-dash" style="display:none"></div>
+  <div id="pane-admin" style="display:none"></div>
+</div>
 
-    let employees = [];
-    let questions = [];
-    let selectedEmployee = null;
-    let scoreGuide = [];
+<script>
+/* ─── CONFIG ─── */
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxhvD3MMMzzryiEH_PJvwX4whqn3d3v_UVtICzCId-Hthby0aWPvoCOIN3GbDaqIs6U_g/exec';
 
-    const defaultGuide = [
-      { score: 5, meaning: 'ดีเยี่ยม / เป็นแบบอย่าง', description: 'ปฏิบัติสม่ำเสมอ มีหลักฐานชัดเจน และเป็นตัวอย่างให้ผู้อื่น' },
-      { score: 4, meaning: 'ดี / ผ่านมาตรฐาน', description: 'ปฏิบัติได้ดี มีหลักฐานสนับสนุน ไม่มีประเด็นสำคัญ' },
-      { score: 3, meaning: 'พอใช้ / เฝ้าระวัง', description: 'ปฏิบัติได้บางส่วน แต่ยังไม่สม่ำเสมอหรือหลักฐานไม่ครบ' },
-      { score: 2, meaning: 'ต้องปรับปรุง', description: 'พบข้อบกพร่องชัดเจน ต้องมีแผนแก้ไข' },
-      { score: 1, meaning: 'ไม่ปฏิบัติ / เสี่ยงสูง', description: 'ไม่พบการปฏิบัติ หรือพบพฤติกรรมขัดกับ Core Value' }
-    ];
+/* ─── EVALUATOR FROM URL ───
+   Each evaluator gets their own link: yoursite.html?evaluator=ชื่อผู้ประเมิน
+   If the param is missing, we show a directory of links (one per evaluator)
+   pulled from the "ผู้ประเมิน" sheet so an admin can copy/share them. */
+const urlParams = new URLSearchParams(window.location.search);
+let EVALUATOR_NAME = (urlParams.get('evaluator') || '').trim();
 
-    // HELPERS
-    function el(id) { return document.getElementById(id); }
-    function set(id, html) { const e = el(id); if (e) e.innerHTML = html; }
+/* ─── STATE ─── */
+let employees = [], selectedEmp = null, questions = [], scoreGuide = [], submitting = false;
+let dashData = null, charts = {};
 
-    function loading(msg = 'กำลังโหลด...') {
-      set('app-content', `<div class="card loading"><div class="spinner"></div>${msg}</div>`);
+const defaultGuide = [
+  {score:5, meaning:'ดีเยี่ยม / เป็นแบบอย่าง', description:'ปฏิบัติสม่ำเสมอ มีหลักฐานชัดเจน และเป็นตัวอย่างให้ผู้อื่น'},
+  {score:4, meaning:'ดี / ผ่านมาตรฐาน', description:'ปฏิบัติได้ดี มีหลักฐานสนับสนุน ไม่มีประเด็นสำคัญ'},
+  {score:3, meaning:'พอใช้ / เฝ้าระวัง', description:'ปฏิบัติได้บางส่วน แต่ยังไม่สม่ำเสมอหรือหลักฐานไม่ครบ'},
+  {score:2, meaning:'ต้องปรับปรุง', description:'พบข้อบกพร่องชัดเจน ต้องมีแผนแก้ไข'},
+  {score:1, meaning:'ไม่ปฏิบัติ / เสี่ยงสูง', description:'ไม่พบการปฏิบัติ หรือพบพฤติกรรมขัดกับ Core Value'}
+];
+
+const heartGuide = [
+  {name:'Hospitality', meaning:'บริการด้วยความจริงใจ', method:'ดูวิธีสื่อสาร การรับฟัง การช่วยเหลือ และ Feedback'},
+  {name:'Excellence', meaning:'มุ่งมั่งสู่ความเป็นเลิศทุกด้าน', method:'ดูความถูกต้อง มาตรฐาน รายละเอียด และการปรับปรุงงาน'},
+  {name:'Accountability', meaning:'รักษามาตรฐานสูงสุด', method:'ดูงานค้าง การติดตาม การรายงาน และการรับผิดชอบข้อผิดพลาด'},
+  {name:'Responsibility', meaning:'รับผิดชอบผลลัพธ์', method:'ดูวินัย ความปลอดภัย การรักษาความลับ และทรัพย์สินบริษัท'},
+  {name:'Teamwork', meaning:'ทำงานเป็นทีม', method:'ดูการประสานงาน ช่วยเหลือทีม และงานข้ามฝ่าย'}
+];
+
+/* ─── HELPERS ─── */
+function scoreColor(s){ s=Number(s); return s>=4.5?'#16a34a':s>=3.5?'#65a30d':s>=2.5?'#d97706':s>=1.5?'#ea580c':'#dc2626'; }
+function scoreClass(s){ s=Number(s); return s>=4.5?'s5':s>=3.5?'s4':s>=2.5?'s3':s>=1.5?'s2':'s1'; }
+function scoreLabel(s){ s=Number(s); return s>=4.5?'ดีเยี่ยม':s>=3.5?'ดี':s>=2.5?'พอใช้':s>=1.5?'ต้องปรับปรุง':'ไม่ปฏิบัติ'; }
+function el(id){ return document.getElementById(id); }
+function set(id,h){ const e=el(id); if(e) e.innerHTML=h; }
+
+function loading(pane, msg='กำลังโหลด...'){
+  set(pane, `<div class="loading"><div class="spinner"></div>${msg}</div>`);
+}
+
+function showErr(pane, msg){
+  set(pane, `<div class="card error-box"><b>⚠ เกิดข้อผิดพลาด</b><br><br>${msg}<br><br>
+    <button onclick="pane==='pane-eval'?loadData():loadDash()" style="margin-top:8px">ลองใหม่</button></div>`);
+}
+
+function killChart(id){ if(charts[id]){ charts[id].destroy(); delete charts[id]; } }
+
+/* ─── JSONP API ─── */
+function api(action, payload={}){
+  return new Promise((resolve, reject) => {
+    const cb = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    const script = document.createElement('script');
+
+    const timer = setTimeout(() => {
+      reject(new Error('Apps Script timeout — ตรวจสอบ Web App URL และสิทธิ์ Anyone with the link'));
+      delete window[cb]; script.remove();
+    }, 20000);
+
+    window[cb] = data => { clearTimeout(timer); resolve(data); delete window[cb]; script.remove(); };
+
+    const p = new URLSearchParams({ action, callback: cb });
+    Object.entries(payload).forEach(([k,v]) => p.set(k, typeof v==='object'?JSON.stringify(v):v));
+    script.src = WEB_APP_URL + '?' + p;
+    script.onerror = () => { clearTimeout(timer); reject(new Error('โหลด script ไม่สำเร็จ')); delete window[cb]; script.remove(); };
+    document.body.appendChild(script);
+  });
+}
+
+async function apiPost(action, payload={}){
+  await fetch(WEB_APP_URL, { method:'POST', mode:'no-cors', body: JSON.stringify({action,...payload}) });
+  return {success:true};
+}
+
+/* ─── TAB ─── */
+function switchTab(t){
+  el('pane-eval').style.display = t==='eval'?'block':'none';
+  el('pane-dash').style.display = t==='dash'?'block':'none';
+  el('pane-admin').style.display = t==='admin'?'block':'none';
+  el('tab-eval').classList.toggle('active', t==='eval');
+  el('tab-dash').classList.toggle('active', t==='dash');
+  el('tab-admin').classList.toggle('active', t==='admin');
+  if(t==='dash') loadDash();
+  if(t==='admin') loadAdminDashboard();
+}
+
+/* ════════════════════════════════
+   ENTRY POINT
+   ════════════════════════════════ */
+window.onload = bootstrap;
+
+async function bootstrap(){
+  if(!EVALUATOR_NAME){
+    await renderEvaluatorDirectory();
+    return;
+  }
+  set('head-evaluator', 'ผู้ประเมิน: ' + EVALUATOR_NAME);
+  el('tab-nav').style.display = 'flex';
+  loadData();
+}
+
+/* ─── EVALUATOR DIRECTORY (no ?evaluator= in URL) ─── */
+async function renderEvaluatorDirectory(){
+  set('head-evaluator', 'เลือกผู้ประเมิน');
+  loading('pane-eval','กำลังโหลดรายชื่อผู้ประเมิน...');
+  el('tab-nav').style.display = 'flex';
+  el('tab-admin').style.display = 'flex';
+  try {
+    const r = await api('listEvaluators');
+    if(!r.success) throw new Error(r.message || 'โหลดรายชื่อผู้ประเมินไม่สำเร็จ');
+    const list = r.evaluators || [];
+
+    if(!list.length){
+      set('pane-eval', `<div class="card error-box">ไม่พบรายชื่อผู้ประเมินในระบบ</div>`);
+      return;
     }
 
-    function showError(msg) {
-      set('app-content', `<div class="card error-box"><b>⚠ เกิดข้อผิดพลาด</b><br><br>${msg}</div>`);
-    }
+    const base = window.location.origin + window.location.pathname;
+    let h = `<div class="card">
+      <h3 class="section-title">เลือกผู้ประเมินเพื่อเปิดลิงก์ส่วนตัว</h3>
+      <div class="info-grid"><div class="info-box"><div class="info-label">ทั้งหมด</div><div class="info-value">${list.length} คน</div></div></div>
+    </div>`;
 
-    // API
-    function api(action, payload = {}) {
-      return new Promise((resolve, reject) => {
-        const cb = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-        const script = document.createElement('script');
-
-        const timer = setTimeout(() => {
-          reject(new Error('Request timeout'));
-          delete window[cb];
-          script.remove();
-        }, 20000);
-
-        window[cb] = data => {
-          clearTimeout(timer);
-          resolve(data);
-          delete window[cb];
-          script.remove();
-        };
-
-        const params = new URLSearchParams({ action, callback: cb, evaluatorName: EVALUATOR_NAME });
-        Object.entries(payload).forEach(([k, v]) => {
-          params.set(k, typeof v === 'object' ? JSON.stringify(v) : v);
-        });
-
-        script.src = WEB_APP_URL + '?' + params.toString();
-        script.onerror = () => {
-          clearTimeout(timer);
-          reject(new Error('Network error'));
-          delete window[cb];
-          script.remove();
-        };
-        document.body.appendChild(script);
-      });
-    }
-
-    async function apiPost(action, payload = {}) {
-      const response = await fetch(WEB_APP_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: JSON.stringify({ action, ...payload })
-      });
-      return { success: true };
-    }
-
-    // INIT
-    window.onload = bootstrap;
-
-    async function bootstrap() {
-      if (!EVALUATOR_NAME) {
-        await renderEvaluatorDirectory();
-        return;
-      }
-      el('head-evaluator').textContent = 'ผู้ประเมิน: ' + EVALUATOR_NAME;
-      loadData();
-    }
-
-    // EVALUATOR DIRECTORY
-    async function renderEvaluatorDirectory() {
-      loading('กำลังโหลดรายชื่อผู้ประเมิน...');
-      try {
-        const r = await api('listEvaluators');
-        if (!r.success) throw new Error(r.message || 'โหลดไม่สำเร็จ');
-
-        const list = r.evaluators || [];
-        if (!list.length) {
-          set('app-content', `<div class="card error-box">ไม่พบรายชื่อผู้ประเมิน</div>`);
-          return;
-        }
-
-        const base = window.location.origin + window.location.pathname;
-        let html = `<div class="card">
-          <h3 class="section-title">เลือกผู้ประเมิน</h3>
-          <div class="info-grid"><div class="info-box"><div class="info-label">รวม</div><div class="info-value">${list.length} คน</div></div></div>
-        </div>`;
-
-        list.forEach(ev => {
-          const link = base + '?evaluator=' + encodeURIComponent(ev.evaluator);
-          html += `<a href="${link}" style="text-decoration:none">
-            <div class="card employee-card">
-              <h3 class="employee-name">${ev.evaluator}</h3>
-              <div class="info-grid">
-                <div class="info-box"><div class="info-label">ตำแหน่ง</div><div class="info-value">${ev.position || '-'}</div></div>
-              </div>
-            </div>
-          </a>`;
-        });
-
-        set('app-content', html);
-      } catch (err) {
-        showError(err.message);
-      }
-    }
-
-    // LOAD DATA
-    async function loadData() {
-      loading('กำลังโหลด...');
-      try {
-        const r = await api('init');
-        if (!r.success) throw new Error(r.message || 'โหลดไม่สำเร็จ');
-
-        employees = r.employees || [];
-        scoreGuide = (r.scoreGuide && r.scoreGuide.length) ? r.scoreGuide : defaultGuide;
-        renderList();
-      } catch (err) {
-        showError(err.message);
-      }
-    }
-
-    function renderList() {
-      let html = `
-        <div class="card">
-          <h3 class="section-title">รายการรอประเมิน</h3>
+    list.forEach(ev => {
+      const link = base + '?evaluator=' + encodeURIComponent(ev.evaluator);
+      h += `<a class="dir-link" href="${link}">
+        <div class="card emp">
+          <h3 class="employee-name">${ev.evaluator}</h3>
           <div class="info-grid">
-            <div class="info-box"><div class="info-label">ผู้ประเมิน</div><div class="info-value">${EVALUATOR_NAME}</div></div>
-            <div class="info-box"><div class="info-label">รอประเมิน</div><div class="info-value">${employees.length}</div></div>
-            <div class="info-box"><div class="info-label">สถานะ</div><div class="info-value">พร้อมประเมิน</div></div>
+            <div class="info-box"><div class="info-label">ตำแหน่ง</div><div class="info-value">${ev.position||'-'}</div></div>
+            <div class="info-box" style="grid-column:span 2"><div class="info-label">ลิงก์ส่วนตัว</div><div class="info-value" style="word-break:break-all;font-weight:500;color:var(--blue)">${link}</div></div>
           </div>
         </div>
-      `;
+      </a>`;
+    });
 
-      if (!employees.length) {
-        html += `<div class="card" style="text-align:center;padding:40px">✅ ประเมินครบแล้ว</div>`;
-      } else {
-        html += `<div class="section-title" style="margin-top:8px">รายชื่อพนักงาน</div>`;
-        employees.forEach((e, i) => {
-          html += `<div class="card employee-card" onclick="openForm(${i})">
-            <h3 class="employee-name">${e.employee}</h3>
-            <div class="info-grid">
-              <div class="info-box"><div class="info-label">ตำแหน่ง</div><div class="info-value">${e.employeePosition}</div></div>
-              <div class="info-box"><div class="info-label">สังกัด</div><div class="info-value">${e.bu}</div></div>
-              <div class="info-box"><div class="info-label">สถานะ</div><div class="info-value">รอประเมิน →</div></div>
-            </div>
-          </div>`;
-        });
-      }
+    set('pane-eval', h);
+  } catch(err){ showErr('pane-eval', err.message); }
+}
 
-      set('app-content', html);
-    }
+/* ════════════════════════════════
+   EVALUATE TAB
+   ════════════════════════════════ */
+async function loadData(){
+  try {
+    loading('pane-eval','กำลังโหลดรายชื่อพนักงาน...');
+    const r = await api('init', {evaluatorName: EVALUATOR_NAME});
+    if(!r.success) throw new Error(r.message || 'โหลดข้อมูลไม่สำเร็จ');
+    employees = r.employees || [];
+    scoreGuide = (r.scoreGuide && r.scoreGuide.length) ? r.scoreGuide : defaultGuide;
+    renderList();
+  } catch(err){ showErr('pane-eval', err.message); }
+}
 
-    async function openForm(i) {
-      selectedEmployee = employees[i];
-      loading('กำลังโหลดแบบประเมิน...');
+function renderList(){
+  let h = `
+    <div class="card">
+      <h3 class="section-title">รายการรอประเมิน</h3>
+      <div class="info-grid">
+        <div class="info-box"><div class="info-label">ผู้ประเมิน</div><div class="info-value">${EVALUATOR_NAME}</div></div>
+        <div class="info-box"><div class="info-label">รอประเมิน</div><div class="info-value">${employees.length} คน</div></div>
+        <div class="info-box"><div class="info-label">สถานะ</div><div class="info-value">พร้อมประเมิน</div></div>
+      </div>
+    </div>`;
 
-      try {
-        const r = await api('getForm', { employeeData: selectedEmployee });
-        if (!r.success) throw new Error(r.message || 'โหลดไม่สำเร็จ');
-
-        questions = r.questions || [];
-        renderForm();
-      } catch (err) {
-        showError(err.message);
-      }
-    }
-
-    function renderForm() {
-      const guide = [...scoreGuide].sort((a, b) => Number(b.score) - Number(a.score));
-      let html = `
-        <div class="card">
-          <h3 class="section-title">แบบประเมิน: ${selectedEmployee.employee}</h3>
-          <div class="info-grid">
-            <div class="info-box"><div class="info-label">ตำแหน่ง</div><div class="info-value">${selectedEmployee.employeePosition}</div></div>
-            <div class="info-box"><div class="info-label">สังกัด</div><div class="info-value">${selectedEmployee.bu}</div></div>
-            <div class="info-box"><div class="info-label">จำนวนข้อ</div><div class="info-value">${questions.length}</div></div>
-          </div>
+  if(!employees.length){
+    h += `<div class="card" style="text-align:center;padding:40px">✅ ประเมินครบทุกคนแล้ว — ดูผลคะแนนได้ที่แท็บ "ผลคะแนน"</div>`;
+  } else {
+    h += `<div class="section-title" style="margin-top:8px">รายชื่อพนักงานที่ยังไม่ประเมิน</div>`;
+    employees.forEach((e,i) => {
+      h += `<div class="card emp" onclick="openForm(${i})">
+        <h3 class="employee-name">${e.employee}</h3>
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">ตำแหน่ง</div><div class="info-value">${e.employeePosition}</div></div>
+          <div class="info-box"><div class="info-label">สังกัด</div><div class="info-value">${e.bu}</div></div>
+          <div class="info-box"><div class="info-label">สถานะ</div><div class="info-value">รอประเมิน →</div></div>
         </div>
-        <div class="card">
-          <h3 class="section-title">เกณฑ์การให้คะแนน</h3>
-          <div class="score-visual">
-            ${guide.map(g => `<div class="score-guide s${g.score}"><div><div class="num">${g.score}</div><div class="name">${g.meaning}</div></div><div class="desc">${g.description}</div></div>`).join('')}
-          </div>
-        </div>
-      `;
-
-      if (!questions.length) {
-        html += `<div class="card">ไม่พบคำถาม</div><div class="action-row"><button class="gray" onclick="renderList()">← กลับ</button></div>`;
-        set('app-content', html);
-        return;
-      }
-
-      questions.forEach((q, i) => {
-        html += `<div class="question">
-          <div class="question-top"><div class="core-badge">${q.coreValue}</div><div class="question-no">ข้อที่ ${i + 1}</div></div>
-          <div class="question-text">${q.checklist}</div>
-          <div class="meta"><b>หลักฐาน:</b> ${q.evidence || '-'}<br><b>วิธีตรวจ:</b> ${q.method || '-'}</div>
-          <div class="score-row">
-            ${[5, 4, 3, 2, 1].map(s => `<label class="score-option"><input type="radio" name="sc_${i}" value="${s}"><span class="score-pill">${s}</span></label>`).join('')}
-          </div>
-          <textarea id="nt_${i}" placeholder="หมายเหตุเพิ่มเติม"></textarea>
-        </div>`;
-      });
-
-      html += `<div class="action-row">
-        <button class="gray" onclick="renderList()">← กลับ</button>
-        <button id="submitBtn" onclick="doSubmit()">✔ ส่งผลประเมิน</button>
       </div>`;
+    });
+  }
+  set('pane-eval', h);
+}
 
-      set('app-content', html);
+async function openForm(i){
+  try {
+    selectedEmp = employees[i];
+    loading('pane-eval','กำลังโหลดแบบประเมิน...');
+    const r = await api('getForm', {employeeData: selectedEmp});
+    if(!r.success) throw new Error(r.message || 'โหลดแบบประเมินไม่สำเร็จ');
+    questions = r.questions || [];
+    renderForm();
+  } catch(err){ showErr('pane-eval', err.message); }
+}
+
+function renderForm(){
+  const guide = [...scoreGuide].sort((a,b)=>Number(b.score)-Number(a.score));
+  let h = `
+    <div class="card">
+      <h3 class="section-title">แบบประเมิน: ${selectedEmp.employee}</h3>
+      <div class="info-grid">
+        <div class="info-box"><div class="info-label">ตำแหน่ง</div><div class="info-value">${selectedEmp.employeePosition}</div></div>
+        <div class="info-box"><div class="info-label">สังกัด</div><div class="info-value">${selectedEmp.bu}</div></div>
+        <div class="info-box"><div class="info-label">จำนวนข้อ</div><div class="info-value">${questions.length} ข้อ</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="section-title">เกณฑ์การให้คะแนน</h3>
+      <div class="score-visual">
+        ${guide.map(g=>`<div class="score-guide s${g.score}"><div><div class="num">${g.score}</div><div class="name">${g.meaning}</div></div><div class="desc">${g.description}</div></div>`).join('')}
+      </div>
+    </div>`;
+
+  if(!questions.length){
+    h += `<div class="card">ไม่พบคำถามสำหรับตำแหน่งนี้</div>
+      <div class="action-row"><button class="gray" onclick="renderList()">← กลับ</button></div>`;
+    set('pane-eval', h); return;
+  }
+
+  questions.forEach((q,i) => {
+    h += `<div class="q">
+      <div class="q-top"><div class="core">${q.coreValue}</div><div class="q-no">ข้อที่ ${i+1}</div></div>
+      <div class="question-text">${q.checklist}</div>
+      <div class="meta"><b>หลักฐาน:</b> ${q.evidence||'-'}<br><b>วิธีตรวจ:</b> ${q.method||'-'}</div>
+      <div class="score-row">
+        ${[5,4,3,2,1].map(s=>`<label class="score-option"><input type="radio" name="sc_${i}" value="${s}"><span class="score-pill">${s}</span></label>`).join('')}
+      </div>
+      <textarea id="nt_${i}" placeholder="หมายเหตุเพิ่มเติม / หลักฐานที่พบ"></textarea>
+    </div>`;
+  });
+
+  h += `<div class="action-row">
+    <button class="gray" onclick="renderList()">← กลับ</button>
+    <button id="submitBtn" onclick="doSubmit()">✔ ส่งผลประเมิน</button>
+  </div>`;
+  set('pane-eval', h);
+}
+
+async function doSubmit(){
+  if(submitting) return;
+  const answers = [];
+  for(let i=0;i<questions.length;i++){
+    const c = document.querySelector(`input[name="sc_${i}"]:checked`);
+    if(!c){ alert(`กรุณาให้คะแนนข้อที่ ${i+1}`); return; }
+    answers.push({...questions[i], score:c.value, note:(el('nt_'+i)||{}).value||''});
+  }
+  submitting = true;
+  if(el('submitBtn')) el('submitBtn').disabled = true;
+  loading('pane-eval','กำลังบันทึก...');
+  try {
+    await apiPost('submit', {payload:{
+      evaluator: selectedEmp.evaluator,
+      evaluatorPosition: selectedEmp.evaluatorPosition,
+      employee: selectedEmp.employee,
+      employeePosition: selectedEmp.employeePosition,
+      bu: selectedEmp.bu,
+      answers
+    }});
+    dashData = null; // reset cache
+    alert('บันทึกสำเร็จ ✅');
+    submitting = false;
+    await loadData();
+  } catch(err){ submitting=false; showErr('pane-eval', err.message); }
+}
+
+/* ════════════════════════════════
+   DASHBOARD TAB
+   ════════════════════════════════ */
+async function loadDash(){
+  if(dashData){ renderDash(dashData); return; }
+  loading('pane-dash','กำลังโหลดผลคะแนน...');
+  try {
+    const r = await api('getOverview', {evaluatorName: EVALUATOR_NAME});
+    if(!r.success) throw new Error(r.message || 'โหลด dashboard ไม่สำเร็จ');
+    dashData = r;
+    renderDash(r);
+  } catch(err){ showErr('pane-dash', err.message); }
+}
+
+function renderDash(d){
+  if(!d.individual || !d.individual.length){
+    set('pane-dash',`<div class="card" style="text-align:center;padding:60px 20px">
+      <div style="font-size:52px;margin-bottom:16px">📋</div>
+      <h3 style="color:var(--blue)">ยังไม่มีผลการประเมิน</h3>
+      <p style="color:var(--muted)">ผลคะแนนจะปรากฏที่นี่หลังจากส่งแบบประเมิน</p>
+    </div>`);
+    return;
+  }
+
+  const ind = d.individual;
+  const dist = d.scoreDistribution || [0,0,0,0,0];
+  const cvOverview = d.coreValueOverview || [];
+  const best = ind.reduce((a,b)=>a.avgScore>b.avgScore?a:b);
+  const worst = ind.reduce((a,b)=>a.avgScore<b.avgScore?a:b);
+
+  let h = `
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-val">${d.totalEmployees}</div><div class="stat-label">พนักงานที่ประเมินแล้ว</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:${scoreColor(d.avgScore)}">${Number(d.avgScore).toFixed(2)}</div><div class="stat-label">คะแนนเฉลี่ยรวม</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--s5)">${Number(best.avgScore).toFixed(2)}</div><div class="stat-label">สูงสุด: ${best.employee}</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--s1)">${Number(worst.avgScore).toFixed(2)}</div><div class="stat-label">ต่ำสุด: ${worst.employee}</div></div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-box">
+        <div class="section-title" style="font-size:16px">การกระจายคะแนน</div>
+        <canvas id="cDist"></canvas>
+      </div>
+      <div class="chart-box">
+        <div class="section-title" style="font-size:16px">คะแนนเฉลี่ยรายบุคคล</div>
+        <canvas id="cInd"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-box">
+        <div class="section-title" style="font-size:16px">คะแนนเฉลี่ยตาม Core Value (ภาพรวมทุกคนที่ประเมิน)</div>
+        <canvas id="cCVOverview"></canvas>
+      </div>
+      <div class="chart-box">
+        <div class="section-title" style="font-size:16px">Core Value Radar (ภาพรวม)</div>
+        <canvas id="cCVRadar"></canvas>
+      </div>
+    </div>`;
+
+  if(d.benchmark && d.benchmark.length > 1){
+    h += `<div class="chart-box card" style="margin-top:0">
+      <div class="section-title" style="font-size:16px">เปรียบเทียบคะแนนตามตำแหน่ง</div>
+      <canvas id="cPos"></canvas>
+    </div>`;
+  }
+
+  const sorted = [...ind].sort((a,b)=>b.avgScore-a.avgScore);
+  h += `<div class="card">
+    <h3 class="section-title">คะแนนรายบุคคล</h3>
+    <div style="overflow-x:auto">
+      <table class="emp-table">
+        <thead><tr><th>#</th><th>ชื่อพนักงาน</th><th>ตำแหน่ง</th><th>BU</th><th>คะแนนเฉลี่ย</th><th>ระดับ</th><th></th></tr></thead>
+        <tbody>
+          ${sorted.map((e,i)=>`<tr>
+            <td style="color:var(--muted);font-weight:700">${i+1}</td>
+            <td style="font-weight:700">${e.employee}</td>
+            <td style="color:var(--muted)">${e.position}</td>
+            <td style="color:var(--muted)">${e.bu||'-'}</td>
+            <td>
+              <div style="font-size:20px;font-weight:800;color:${scoreColor(e.avgScore)}">${Number(e.avgScore).toFixed(2)}</div>
+              <div class="progress-bar-wrap"><div class="progress-bar" style="width:${(e.avgScore/5*100).toFixed(0)}%;background:${scoreColor(e.avgScore)}"></div></div>
+            </td>
+            <td><span class="score-badge ${scoreClass(e.avgScore)}">${scoreLabel(e.avgScore)}</span></td>
+            <td><button class="detail-btn" onclick='showDetail(${JSON.stringify(e)})'>ดูรายละเอียด →</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+
+  set('pane-dash', h);
+
+  // Draw charts after DOM update
+  requestAnimationFrame(() => {
+    killChart('cDist'); killChart('cInd'); killChart('cPos'); killChart('cCVOverview'); killChart('cCVRadar');
+
+    const distCtx = el('cDist');
+    if(distCtx){
+      charts['cDist'] = new Chart(distCtx, {
+        type:'bar',
+        data:{
+          labels:['คะแนน 1','คะแนน 2','คะแนน 3','คะแนน 4','คะแนน 5'],
+          datasets:[{
+            label:'จำนวนครั้ง', data:dist,
+            backgroundColor:['#dc2626','#ea580c','#d97706','#65a30d','#16a34a'],
+            borderRadius:8
+          }]
+        },
+        options:{responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, ticks:{stepSize:1}}}}
+      });
     }
 
-    async function doSubmit() {
-      const answers = [];
-      for (let i = 0; i < questions.length; i++) {
-        const c = document.querySelector(`input[name="sc_${i}"]:checked`);
-        if (!c) {
-          alert(`กรุณาให้คะแนนข้อที่ ${i + 1}`);
-          return;
+    const indCtx = el('cInd');
+    if(indCtx){
+      const s = [...ind].sort((a,b)=>b.avgScore-a.avgScore);
+      charts['cInd'] = new Chart(indCtx, {
+        type:'bar',
+        data:{
+          labels: s.map(e=>e.employee),
+          datasets:[{
+            label:'คะแนนเฉลี่ย',
+            data: s.map(e=>Number(e.avgScore).toFixed(2)),
+            backgroundColor: s.map(e=>scoreColor(e.avgScore)),
+            borderRadius:8
+          }]
+        },
+        options:{responsive:true, plugins:{legend:{display:false}}, scales:{y:{min:0,max:5,ticks:{stepSize:1}}}}
+      });
+    }
+
+    // NEW: Core Value overview bar chart
+    const cvCtx = el('cCVOverview');
+    if(cvCtx && cvOverview.length){
+      const s = [...cvOverview].sort((a,b)=>b.avgScore-a.avgScore);
+      charts['cCVOverview'] = new Chart(cvCtx, {
+        type:'bar',
+        data:{
+          labels: s.map(c=>c.coreValue),
+          datasets:[{
+            label:'คะแนนเฉลี่ย',
+            data: s.map(c=>Number(c.avgScore).toFixed(2)),
+            backgroundColor: s.map(c=>scoreColor(c.avgScore)),
+            borderRadius:8
+          }]
+        },
+        options:{responsive:true, plugins:{legend:{display:false}}, scales:{y:{min:0,max:5,ticks:{stepSize:1}}}}
+      });
+    }
+
+    // NEW: Core Value overview radar chart
+    const cvRadarCtx = el('cCVRadar');
+    if(cvRadarCtx && cvOverview.length){
+      charts['cCVRadar'] = new Chart(cvRadarCtx, {
+        type:'radar',
+        data:{
+          labels: cvOverview.map(c=>c.coreValue),
+          datasets:[{
+            label:'ค่าเฉลี่ยรวม',
+            data: cvOverview.map(c=>Number(c.avgScore).toFixed(2)),
+            backgroundColor:'rgba(23,59,108,0.15)',
+            borderColor:'#173b6c',
+            borderWidth:2,
+            pointBackgroundColor:'#173b6c',
+            pointRadius:5
+          }]
+        },
+        options:{responsive:true, scales:{r:{min:0,max:5,ticks:{stepSize:1}}}, plugins:{legend:{display:false}}}
+      });
+    }
+
+    if(d.benchmark && d.benchmark.length > 1){
+      const posCtx = el('cPos');
+      if(posCtx){
+        charts['cPos'] = new Chart(posCtx, {
+          type:'bar',
+          data:{
+            labels: d.benchmark.map(b=>b.position),
+            datasets:[{
+              label:'คะแนนเฉลี่ย',
+              data: d.benchmark.map(b=>Number(b.avgScore).toFixed(2)),
+              backgroundColor: d.benchmark.map(b=>scoreColor(b.avgScore)),
+              borderRadius:8
+            }]
+          },
+          options:{responsive:true, plugins:{legend:{display:false}}, scales:{y:{min:0,max:5,ticks:{stepSize:1}}}}
+        });
+      }
+    }
+  });
+}
+
+/* ─── INDIVIDUAL DETAIL ─── */
+function showDetail(emp){
+  if(!dashData || !dashData.rows){
+    alert('ไม่พบข้อมูลรายละเอียด กรุณาโหลดใหม่'); return;
+  }
+
+  // Filter rows for this employee
+  const rows = dashData.rows.filter(r => r.employee === emp.employee);
+
+  // Group by CoreValue
+  const cvMap = {};
+  rows.forEach(r => {
+    if(!cvMap[r.coreValue]) cvMap[r.coreValue] = [];
+    cvMap[r.coreValue].push(r);
+  });
+
+  const cvKeys = Object.keys(cvMap);
+  const cvAvgs = cvKeys.map(cv => {
+    const scores = cvMap[cv].map(r=>r.score);
+    return scores.reduce((a,b)=>a+b,0)/scores.length;
+  });
+
+  // Benchmark comparison
+  const bench = (dashData.benchmark||[]).find(b=>b.position===emp.position);
+
+  let h = `<div id="pdf-root">
+    <div class="detail-hero">
+      <div>
+        <h3>${emp.employee}</h3>
+        <div class="sub">${emp.position} &nbsp;|&nbsp; BU: ${emp.bu||'-'}</div>
+        <div class="sub" style="margin-top:5px;font-size:12px;opacity:.7">ผู้ประเมิน: ${EVALUATOR_NAME} &nbsp;|&nbsp; ${rows.length} รายการ</div>
+      </div>
+      <div class="score-circle">
+        <div class="val" style="color:white">${Number(emp.avgScore).toFixed(2)}</div>
+        <div class="lbl">${scoreLabel(emp.avgScore)}</div>
+      </div>
+    </div>`;
+
+  if(bench){
+    const diff = emp.avgScore - bench.avgScore;
+    const diffSign = diff>=0?'+':'';
+    const diffColor = diff>=0?'var(--s5)':'var(--s1)';
+    h += `<div class="card">
+      <h3 class="section-title" style="font-size:16px">เปรียบเทียบกับค่าเฉลี่ยตำแหน่ง: ${emp.position}</h3>
+      <div class="benchmark-compare">
+        <div class="bc-item"><div class="bc-val" style="color:${scoreColor(emp.avgScore)}">${Number(emp.avgScore).toFixed(2)}</div><div class="bc-label">คะแนนของ ${emp.employee}</div></div>
+        <div class="bc-vs">vs</div>
+        <div class="bc-item"><div class="bc-val" style="color:${scoreColor(bench.avgScore)}">${Number(bench.avgScore).toFixed(2)}</div><div class="bc-label">ค่าเฉลี่ยตำแหน่ง (${bench.count} คน)</div></div>
+        <div class="bc-vs">→</div>
+        <div class="bc-item"><div class="bc-val" style="color:${diffColor}">${diffSign}${diff.toFixed(2)}</div><div class="bc-label">ผลต่าง</div></div>
+      </div>
+    </div>`;
+  }
+
+  // CV radar chart
+  h += `<div class="chart-box card" style="margin-top:0">
+    <div class="section-title" style="font-size:16px">คะแนนแต่ละ Core Value</div>
+    <canvas id="cRadar" style="max-height:300px"></canvas>
+  </div>`;
+
+  // Per-CV question breakdown
+  h += `<div class="card"><h3 class="section-title">รายละเอียดตาม Core Value</h3><div class="cv-grid">`;
+  cvKeys.forEach((cv, ci) => {
+    const avg = cvAvgs[ci];
+    h += `<div class="cv-block">
+      <div class="cv-block-header">
+        <div class="cv-name">${cv}</div>
+        <div class="cv-avg-badge ${scoreClass(avg)}">${Number(avg).toFixed(2)}</div>
+      </div>`;
+    cvMap[cv].forEach(r => {
+      h += `<div class="q-row">
+        <div class="q-dot" style="background:${scoreColor(r.score)}">${r.score}</div>
+        <div>
+          <div class="q-text">${r.checklist}</div>
+          ${r.note ? `<div class="q-note">💬 ${r.note}</div>` : ''}
+        </div>
+      </div>`;
+    });
+    h += `</div>`;
+  });
+  h += `</div></div></div>`; // close cv-grid + card + pdf-root
+
+  h += `<div class="action-row">
+    <button class="gray" onclick="renderDash(dashData)">← กลับภาพรวม</button>
+    <button class="green" onclick="doPDF()">📄 Export PDF (A4)</button>
+  </div>`;
+
+  set('pane-dash', h);
+
+  // Draw radar after paint
+  requestAnimationFrame(() => {
+    killChart('cRadar');
+    const ctx = el('cRadar');
+    if(ctx && cvKeys.length){
+      charts['cRadar'] = new Chart(ctx, {
+        type:'radar',
+        data:{
+          labels: cvKeys,
+          datasets:[{
+            label: emp.employee,
+            data: cvAvgs.map(v=>Number(v).toFixed(2)),
+            backgroundColor:'rgba(23,59,108,0.15)',
+            borderColor:'#173b6c',
+            borderWidth:2,
+            pointBackgroundColor:'#173b6c',
+            pointRadius:5
+          }]
+        },
+        options:{
+          responsive:true,
+          scales:{ r:{ min:0, max:5, ticks:{stepSize:1} } },
+          plugins:{ legend:{ display:false } }
         }
-        answers.push({
-          ...questions[i],
-          score: c.value,
-          note: (el('nt_' + i) || {}).value || ''
-        });
-      }
-
-      el('submitBtn').disabled = true;
-      loading('กำลังบันทึก...');
-
-      try {
-        await apiPost('submit', {
-          payload: {
-            evaluator: EVALUATOR_NAME,
-            evaluatorPosition: selectedEmployee.evaluatorPosition || '',
-            employee: selectedEmployee.employee,
-            employeePosition: selectedEmployee.employeePosition,
-            bu: selectedEmployee.bu,
-            answers
-          }
-        });
-
-        alert('บันทึกสำเร็จ ✅');
-        loadData();
-      } catch (err) {
-        showError(err.message);
-      }
+      });
     }
-  </script>
-</body>
+  });
+}
 
+/* ─── ADMIN DASHBOARD (รวมทั้งหมด) ─── */
+async function loadAdminDashboard(){
+  const pane = el('pane-admin');
+  pane.innerHTML = '<div class="loading"><div class="spinner"></div>กำลังโหลด Dashboard...</div>';
+  
+  try {
+    const data = await api('apiDashboard');
+    if(!data.success) throw new Error(data.message || 'โหลดไม่สำเร็จ');
+    
+    const summary = data.summary || {};
+    const buSum = data.buSummary || {};
+    const cvSum = data.coreValueSummary || {};
+    const empSum = data.employeeSummary || [];
+    
+    let html = `
+      <div class="card">
+        <h2 class="section-title">📊 Dashboard สรุปรวม</h2>
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">รายการประเมิน</div><div class="info-value">${summary.totalRecords||0}</div></div>
+          <div class="info-box"><div class="info-label">พนักงาน</div><div class="info-value">${summary.uniqueEmployees||0}</div></div>
+          <div class="info-box"><div class="info-label">สังกัด</div><div class="info-value">${summary.uniqueBUs||0}</div></div>
+          <div class="info-box"><div class="info-label">Core Value</div><div class="info-value">${summary.uniqueCoreValues||0}</div></div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h3 class="section-title">ผลการประเมินรวม</h3>
+        <div class="info-grid">
+          <div class="info-box"><div class="info-label">คะแนนเฉลี่ย</div><div class="info-value" style="color:#16a34a;font-size:20px">${(summary.overallAverage||0).toFixed(2)}</div></div>
+          <div class="info-box"><div class="info-label">สูงสุด</div><div class="info-value" style="color:#65a30d">${(summary.overallMax||0).toFixed(2)}</div></div>
+          <div class="info-box"><div class="info-label">ต่ำสุด</div><div class="info-value" style="color:#d97706">${(summary.overallMin||0).toFixed(2)}</div></div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h3 class="section-title">🏢 คะแนนเฉลี่ยรายสังกัด</h3>
+        <table class="emp-table">
+          <thead>
+            <tr>
+              <th>สังกัด</th>
+              <th>จำนวน</th>
+              <th>เฉลี่ย</th>
+              <th>ช่วง</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+    
+    Object.values(buSum).forEach(bu => {
+      const colorClass = bu.average >= 4.5 ? 's5' : bu.average >= 3.5 ? 's4' : bu.average >= 2.5 ? 's3' : 's2';
+      html += `<tr>
+        <td style="font-weight:700">${bu.bu}</td>
+        <td>${bu.count}</td>
+        <td style="font-weight:700">${bu.average}</td>
+        <td><span class="score-badge ${colorClass}">${bu.min.toFixed(1)} - ${bu.max.toFixed(1)}</span></td>
+      </tr>`;
+    });
+    
+    html += `
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="card">
+        <h3 class="section-title">⭐ คะแนนเฉลี่ยราย Core Value</h3>
+        <table class="emp-table">
+          <thead>
+            <tr>
+              <th>Core Value</th>
+              <th>จำนวน</th>
+              <th>เฉลี่ย</th>
+              <th>ช่วง</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+    
+    Object.values(cvSum).forEach(cv => {
+      const colorClass = cv.average >= 4.5 ? 's5' : cv.average >= 3.5 ? 's4' : cv.average >= 2.5 ? 's3' : 's2';
+      html += `<tr>
+        <td style="font-weight:700">${cv.coreValue}</td>
+        <td>${cv.count}</td>
+        <td style="font-weight:700">${cv.average}</td>
+        <td><span class="score-badge ${colorClass}">${cv.min.toFixed(1)} - ${cv.max.toFixed(1)}</span></td>
+      </tr>`;
+    });
+    
+    html += `
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="card">
+        <h3 class="section-title">👥 Top 10 พนักงาน (คะแนนสูงสุด)</h3>
+        <table class="emp-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>ชื่อพนักงาน</th>
+              <th>ตำแหน่ง</th>
+              <th>สังกัด</th>
+              <th>เฉลี่ย</th>
+              <th>จำนวนครั้ง</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+    
+    empSum.sort((a,b) => Number(b.average) - Number(a.average))
+      .slice(0, 10)
+      .forEach((emp, i) => {
+        const colorClass = emp.average >= 4.5 ? 's5' : emp.average >= 3.5 ? 's4' : emp.average >= 2.5 ? 's3' : 's2';
+        html += `<tr>
+          <td>${i+1}</td>
+          <td style="font-weight:700">${emp.employee}</td>
+          <td>${emp.position||'-'}</td>
+          <td>${emp.bu||'-'}</td>
+          <td><span class="score-badge ${colorClass}" style="font-weight:700">${emp.average}</span></td>
+          <td>${emp.recordCount}</td>
+        </tr>`;
+      });
+    
+    html += `
+          </tbody>
+        </table>
+      </div>
+    `;
+    
+    pane.innerHTML = html;
+    
+  } catch (err) {
+    pane.innerHTML = '<div class="card" style="background:#fef2f2;border:1px solid #fecaca;color:#991b1b"><b>⚠ Error</b><br>' + err.message + '</div>';
+  }
+}
+
+/* ─── PDF EXPORT (fit to 1 page A4) ─── */
+function doPDF(emp){
+  const root = el('pdf-root');
+  if(!root){ alert('ไม่พบข้อมูลสำหรับ PDF'); return; }
+
+  // Snapshot all canvases → images
+  const canvases = root.querySelectorAll('canvas');
+  const snapshots = Array.from(canvases).map(c => ({
+    id: c.id,
+    src: c.toDataURL('image/png')
+  }));
+
+  const cloned = root.cloneNode(true);
+  snapshots.forEach(snap => {
+    const c = cloned.querySelector('#'+snap.id);
+    if(!c) return;
+    const img = document.createElement('img');
+    img.src = snap.src;
+    img.style.cssText = 'width:100%;max-height:170px;object-fit:contain;display:block;margin:auto';
+    c.replaceWith(img);
+  });
+
+  // ─── ชื่อผู้ถูกประเมิน / ผู้ประเมิน สำหรับช่องลงชื่อ ───
+  const currentEmployeeName = (selectedEmp && selectedEmp.employee)
+    || (root.querySelector('.detail-hero h3') ? root.querySelector('.detail-hero h3').textContent : '');
+
+  const win = window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>ผลการประเมิน K.C. HEART</title>
+  <style>
+    *{box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+    html,body{height:100%}
+    body{font-family:Arial,sans-serif;color:#1f2937;font-size:8.3pt;line-height:1.32}
+    @page{size:A4;margin:8mm}
+
+    /* Single scaled wrapper so the whole report always lands on 1 page */
+    #scale-wrap{ transform-origin: top left; }
+
+    h3{margin:0 0 4px}
+    .detail-hero{background:linear-gradient(135deg,#173b6c,#1e4d99);color:white;padding:10px 14px;border-radius:8px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .detail-hero h3{font-size:13pt}
+    .sub{opacity:.85;font-size:7.6pt}
+    .score-circle{background:rgba(255,255,255,.18);border-radius:50%;width:54px;height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+    .score-circle .val{font-size:15pt;font-weight:800;color:white;line-height:1}
+    .score-circle .lbl{font-size:6.5pt;opacity:.85;margin-top:1px;color:white}
+    .card{border:1px solid #e5e7eb;border-radius:7px;padding:8px 10px;margin-bottom:6px}
+    .section-title{font-size:9.5pt;font-weight:800;color:#173b6c;margin:0 0 6px}
+    .benchmark-compare{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:2px 0}
+    .bc-val{font-size:14pt;font-weight:800}
+    .bc-label{font-size:6.8pt;color:#6b7280;margin-top:1px}
+    .bc-vs{font-size:11pt;color:#9ca3af;font-weight:700}
+    .cv-block{border:1px solid #e5e7eb;border-radius:7px;padding:6px 8px;margin-bottom:4px; page-break-inside:avoid}
+    .cv-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .cv-grid .cv-block{margin-bottom:0}
+    .cv-block-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+    .cv-name{font-size:8.6pt;font-weight:800;color:#173b6c}
+    .cv-avg-badge{padding:2px 9px;border-radius:999px;color:white;font-weight:800;font-size:8pt}
+    .q-row{background:#f9fafb;border-radius:6px;padding:4px 6px;margin-bottom:3px;display:flex;gap:6px;align-items:flex-start;border-left:3px solid #e5e7eb}
+    .q-dot{width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:7.5pt;flex-shrink:0}
+    .q-text{font-size:7.4pt;font-weight:700;margin-bottom:1px}
+    .q-note{font-size:7pt;color:#6b7280}
+    .s5{background:#16a34a}.s4{background:#65a30d}.s3{background:#d97706}.s2{background:#ea580c}.s1{background:#dc2626}
+    img{max-width:100%;display:block}
+
+    /* ─── NEW: ช่องลงชื่อ (มุมขวาล่าง) ─── */
+    .signature-section{ margin-top:10px; display:flex; justify-content:flex-end; page-break-inside:avoid; }
+    .signature-row{ display:flex; gap:22px; }
+    .sig-box{ width:150px; text-align:center; }
+    .sig-line{ border-bottom:1px solid #4b5563; height:26px; margin-bottom:5px; }
+    .sig-caption{ font-size:7pt; color:#6b7280; margin-bottom:2px; }
+    .sig-name{ font-size:8.2pt; font-weight:800; color:#173b6c; }
+    .sig-role{ font-size:7pt; color:#6b7280; margin-top:1px; }
+    .sig-date{ font-size:6.6pt; color:#9ca3af; margin-top:4px; }
+
+    .footer{margin-top:6px;border-top:1px solid #e5e7eb;padding-top:4px;text-align:center;color:#9ca3af;font-size:6.5pt}
+  </style>
+  </head><body>
+  <div id="scale-wrap">
+  ${cloned.innerHTML}
+
+  <div class="signature-section">
+    <div class="signature-row">
+      <div class="sig-box">
+        <div class="sig-caption">ลงชื่อ</div>
+        <div class="sig-line"></div>
+        <div class="sig-name">${currentEmployeeName}</div>
+        <div class="sig-role">ผู้ถูกประเมิน</div>
+        <div class="sig-date">วันที่ ..................................</div>
+      </div>
+      <div class="sig-box">
+        <div class="sig-caption">ลงชื่อ</div>
+        <div class="sig-line"></div>
+        <div class="sig-name">${EVALUATOR_NAME}</div>
+        <div class="sig-role">ผู้ประเมิน</div>
+        <div class="sig-date">วันที่ ..................................</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">K.C. HEART Core Value Evaluation &nbsp;|&nbsp; ผู้ประเมิน: ${EVALUATOR_NAME} &nbsp;|&nbsp; ${new Date().toLocaleString('th-TH')}</div>
+  </div>
+  <script>
+    // Auto-scale the whole report down (never up) so it always fits one A4 page,
+    // regardless of how many Core Values / questions this employee has.
+    window.onload = function(){
+      var wrap = document.getElementById('scale-wrap');
+      var pageHeightPx = 297 * 3.7795 - (8*2*3.7795); // A4 height minus @page margins, px @96dpi
+      var contentHeight = wrap.scrollHeight;
+      if(contentHeight > pageHeightPx){
+        var scale = pageHeightPx / contentHeight;
+        wrap.style.transform = 'scale(' + scale.toFixed(3) + ')';
+        wrap.style.width = (100/scale) + '%';
+      }
+      setTimeout(function(){ window.print(); }, 250);
+    };
+  <\/script>
+  </body></html>`);
+  win.document.close();
+}
+</script>
+</body>
 </html>
