@@ -177,7 +177,7 @@
 
 <script>
 /* ─── CONFIG ─── */
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxhvD3MMMzzryiEH_PJvwX4whqn3d3v_UVtICzCId-Hthby0aWPvoCOIN3GbDaqIs6U_g/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzxGwUYEZrY4_jK47uhkIU74Ri4j5-LlCflpRJxZIzzVEuqswrckS5esh0wUxdwX7_oHg/exec';
 
 /* ─── EVALUATOR FROM URL ───
    Each evaluator gets their own link: yoursite.html?evaluator=ชื่อผู้ประเมิน
@@ -475,16 +475,20 @@ function renderDash(d){
   const dist = d.scoreDistribution || [0,0,0,0,0];
   const cvOverview = d.coreValueOverview || [];
   const totalEmp = toNum(d.totalEmployees) || ind.length;
-  const avgScore = toNum(d.avgScore);
-  const best = ind.reduce((a,b)=>toNum(a.avgScore)>toNum(b.avgScore)?a:b);
-  const worst = ind.reduce((a,b)=>toNum(a.avgScore)<toNum(b.avgScore)?a:b);
+  
+  // คำนวณ avgScore จาก individual array แทนการใช้ d.avgScore
+  const totalScore = ind.reduce((sum, emp) => sum + toNum(emp.average), 0);
+  const avgScore = ind.length > 0 ? totalScore / ind.length : 0;
+  
+  const best = ind.reduce((a,b)=>toNum(a.avgScore||a.average)>toNum(b.avgScore||b.average)?a:b);
+  const worst = ind.reduce((a,b)=>toNum(a.avgScore||a.average)<toNum(b.avgScore||b.average)?a:b);
 
   let h = `
     <div class="stat-grid">
       <div class="stat-box"><div class="stat-val">${totalEmp}</div><div class="stat-label">พนักงานที่ประเมินแล้ว</div></div>
       <div class="stat-box"><div class="stat-val" style="color:${scoreColor(avgScore)}">${avgScore.toFixed(2)}</div><div class="stat-label">คะแนนเฉลี่ยรวม</div></div>
-      <div class="stat-box"><div class="stat-val" style="color:var(--s5)">${toNum(best.avgScore).toFixed(2)}</div><div class="stat-label">สูงสุด: ${best.employee}</div></div>
-      <div class="stat-box"><div class="stat-val" style="color:var(--s1)">${toNum(worst.avgScore).toFixed(2)}</div><div class="stat-label">ต่ำสุด: ${worst.employee}</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--s5)">${toNum(best.avgScore||best.average).toFixed(2)}</div><div class="stat-label">สูงสุด: ${best.employee}</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--s1)">${toNum(worst.avgScore||worst.average).toFixed(2)}</div><div class="stat-label">ต่ำสุด: ${worst.employee}</div></div>
     </div>
 
     <div class="chart-grid">
