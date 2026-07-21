@@ -803,11 +803,31 @@ function renderAdminDashboard(){
   const buSum = adminData.buSummary || {};
   const cvSum = adminData.coreValueSummary || {};
   const empSum = adminData.employeeSummary || [];
+  const rows = adminData.rows || [];
   
   // Filter data ตามสังกัดที่เลือก
   const buOptions = ['all', ...Object.keys(buSum).sort()];
   const filteredBUSum = selectedAdminBU === 'all' ? buSum : {[selectedAdminBU]: buSum[selectedAdminBU]};
   const filteredEmpSum = selectedAdminBU === 'all' ? empSum : empSum.filter(e => e.bu === selectedAdminBU);
+  
+  // คำนวณ Core Value Summary ตามสังกัดที่เลือก
+  const filteredRows = selectedAdminBU === 'all' ? rows : rows.filter(r => r.bu === selectedAdminBU);
+  const cvMapFiltered = {};
+  filteredRows.forEach(r => {
+    const cv = r.coreValue || 'ไม่ระบุ';
+    if (!cvMapFiltered[cv]) cvMapFiltered[cv] = { total: 0, count: 0, scores: [] };
+    cvMapFiltered[cv].total += r.score;
+    cvMapFiltered[cv].count++;
+    cvMapFiltered[cv].scores.push(r.score);
+  });
+  
+  const filteredCVSum = Object.keys(cvMapFiltered).map(cv => ({
+    coreValue: cv,
+    count: cvMapFiltered[cv].count,
+    average: cvMapFiltered[cv].count > 0 ? (cvMapFiltered[cv].total / cvMapFiltered[cv].count).toFixed(2) : '0.00',
+    min: cvMapFiltered[cv].scores.length > 0 ? Math.min(...cvMapFiltered[cv].scores) : 0,
+    max: cvMapFiltered[cv].scores.length > 0 ? Math.max(...cvMapFiltered[cv].scores) : 0
+  }));
   
   let html = `
     <div class="card">
@@ -886,11 +906,10 @@ function renderAdminDashboard(){
         <tbody>
   `;
   
-  const cvValues = Object.values(cvSum);
-  if(cvValues.length === 0) {
+  if(filteredCVSum.length === 0) {
     html += `<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--muted)">ไม่มีข้อมูล</td></tr>`;
   } else {
-    cvValues.forEach(cv => {
+    filteredCVSum.forEach(cv => {
       const avg = toNum(cv.average);
       const min = toNum(cv.min);
       const max = toNum(cv.max);
