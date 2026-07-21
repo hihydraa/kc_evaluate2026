@@ -477,7 +477,8 @@ function renderDash(d){
   const totalEmp = toNum(d.totalEmployees) || ind.length;
   
   // คำนวณ avgScore จาก individual array แทนการใช้ d.avgScore
-  const totalScore = ind.reduce((sum, emp) => sum + toNum(emp.average), 0);
+  // ใช้ emp.avgScore (ไม่ใช่ emp.average)
+  const totalScore = ind.reduce((sum, emp) => sum + toNum(emp.avgScore), 0);
   const avgScore = ind.length > 0 ? totalScore / ind.length : 0;
   
   const best = ind.reduce((a,b)=>toNum(a.avgScore||a.average)>toNum(b.avgScore||b.average)?a:b);
