@@ -759,7 +759,22 @@ async function loadAdminDashboard(){
     const data = await api('apiDashboard');
     if(!data.success) throw new Error(data.message || 'โหลดไม่สำเร็จ');
     
+    // Convert ค่าให้เป็น number อย่างปลอดภัย
     const summary = data.summary || {};
+    const toNum = (v) => {
+      if(v === null || v === undefined || v === 'NaN') return 0;
+      const n = Number(v);
+      return isNaN(n) ? 0 : n;
+    };
+    
+    const totalRecords = toNum(summary.totalRecords);
+    const uniqueEmployees = toNum(summary.uniqueEmployees);
+    const uniqueBUs = toNum(summary.uniqueBUs);
+    const uniqueCoreValues = toNum(summary.uniqueCoreValues);
+    const overallAvg = toNum(summary.overallAverage);
+    const overallMax = toNum(summary.overallMax);
+    const overallMin = toNum(summary.overallMin);
+    
     const buSum = data.buSummary || {};
     const cvSum = data.coreValueSummary || {};
     const empSum = data.employeeSummary || [];
@@ -768,19 +783,19 @@ async function loadAdminDashboard(){
       <div class="card">
         <h2 class="section-title">📊 Dashboard สรุปรวม</h2>
         <div class="info-grid">
-          <div class="info-box"><div class="info-label">รายการประเมิน</div><div class="info-value">${summary.totalRecords||0}</div></div>
-          <div class="info-box"><div class="info-label">พนักงาน</div><div class="info-value">${summary.uniqueEmployees||0}</div></div>
-          <div class="info-box"><div class="info-label">สังกัด</div><div class="info-value">${summary.uniqueBUs||0}</div></div>
-          <div class="info-box"><div class="info-label">Core Value</div><div class="info-value">${summary.uniqueCoreValues||0}</div></div>
+          <div class="info-box"><div class="info-label">รายการประเมิน</div><div class="info-value">${totalRecords}</div></div>
+          <div class="info-box"><div class="info-label">พนักงาน</div><div class="info-value">${uniqueEmployees}</div></div>
+          <div class="info-box"><div class="info-label">สังกัด</div><div class="info-value">${uniqueBUs}</div></div>
+          <div class="info-box"><div class="info-label">Core Value</div><div class="info-value">${uniqueCoreValues}</div></div>
         </div>
       </div>
       
       <div class="card">
         <h3 class="section-title">ผลการประเมินรวม</h3>
         <div class="info-grid">
-          <div class="info-box"><div class="info-label">คะแนนเฉลี่ย</div><div class="info-value" style="color:#16a34a;font-size:20px">${(summary.overallAverage||0).toFixed(2)}</div></div>
-          <div class="info-box"><div class="info-label">สูงสุด</div><div class="info-value" style="color:#65a30d">${(summary.overallMax||0).toFixed(2)}</div></div>
-          <div class="info-box"><div class="info-label">ต่ำสุด</div><div class="info-value" style="color:#d97706">${(summary.overallMin||0).toFixed(2)}</div></div>
+          <div class="info-box"><div class="info-label">คะแนนเฉลี่ย</div><div class="info-value" style="color:#16a34a;font-size:20px">${overallAvg.toFixed(2)}</div></div>
+          <div class="info-box"><div class="info-label">สูงสุด</div><div class="info-value" style="color:#65a30d">${overallMax.toFixed(2)}</div></div>
+          <div class="info-box"><div class="info-label">ต่ำสุด</div><div class="info-value" style="color:#d97706">${overallMin.toFixed(2)}</div></div>
         </div>
       </div>
       
@@ -799,12 +814,15 @@ async function loadAdminDashboard(){
     `;
     
     Object.values(buSum).forEach(bu => {
-      const colorClass = bu.average >= 4.5 ? 's5' : bu.average >= 3.5 ? 's4' : bu.average >= 2.5 ? 's3' : 's2';
+      const avg = toNum(bu.average);
+      const min = toNum(bu.min);
+      const max = toNum(bu.max);
+      const colorClass = avg >= 4.5 ? 's5' : avg >= 3.5 ? 's4' : avg >= 2.5 ? 's3' : 's2';
       html += `<tr>
         <td style="font-weight:700">${bu.bu}</td>
         <td>${bu.count}</td>
-        <td style="font-weight:700">${bu.average}</td>
-        <td><span class="score-badge ${colorClass}">${bu.min.toFixed(1)} - ${bu.max.toFixed(1)}</span></td>
+        <td style="font-weight:700">${avg.toFixed(2)}</td>
+        <td><span class="score-badge ${colorClass}">${min.toFixed(1)} - ${max.toFixed(1)}</span></td>
       </tr>`;
     });
     
@@ -828,12 +846,15 @@ async function loadAdminDashboard(){
     `;
     
     Object.values(cvSum).forEach(cv => {
-      const colorClass = cv.average >= 4.5 ? 's5' : cv.average >= 3.5 ? 's4' : cv.average >= 2.5 ? 's3' : 's2';
+      const avg = toNum(cv.average);
+      const min = toNum(cv.min);
+      const max = toNum(cv.max);
+      const colorClass = avg >= 4.5 ? 's5' : avg >= 3.5 ? 's4' : avg >= 2.5 ? 's3' : 's2';
       html += `<tr>
         <td style="font-weight:700">${cv.coreValue}</td>
         <td>${cv.count}</td>
-        <td style="font-weight:700">${cv.average}</td>
-        <td><span class="score-badge ${colorClass}">${cv.min.toFixed(1)} - ${cv.max.toFixed(1)}</span></td>
+        <td style="font-weight:700">${avg.toFixed(2)}</td>
+        <td><span class="score-badge ${colorClass}">${min.toFixed(1)} - ${max.toFixed(1)}</span></td>
       </tr>`;
     });
     
@@ -858,16 +879,17 @@ async function loadAdminDashboard(){
           <tbody>
     `;
     
-    empSum.sort((a,b) => Number(b.average) - Number(a.average))
+    empSum.sort((a,b) => toNum(b.average) - toNum(a.average))
       .slice(0, 10)
       .forEach((emp, i) => {
-        const colorClass = emp.average >= 4.5 ? 's5' : emp.average >= 3.5 ? 's4' : emp.average >= 2.5 ? 's3' : 's2';
+        const avg = toNum(emp.average);
+        const colorClass = avg >= 4.5 ? 's5' : avg >= 3.5 ? 's4' : avg >= 2.5 ? 's3' : 's2';
         html += `<tr>
           <td>${i+1}</td>
           <td style="font-weight:700">${emp.employee}</td>
           <td>${emp.position||'-'}</td>
           <td>${emp.bu||'-'}</td>
-          <td><span class="score-badge ${colorClass}" style="font-weight:700">${emp.average}</span></td>
+          <td><span class="score-badge ${colorClass}" style="font-weight:700">${avg.toFixed(2)}</span></td>
           <td>${emp.recordCount}</td>
         </tr>`;
       });
